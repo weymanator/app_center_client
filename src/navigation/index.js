@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
+import SchedulePage from '../schedulecalendar/SchedulePage';
 import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 
@@ -75,6 +76,14 @@ export default function Navigation() {
                         render={({ location }) => {
                             if (state.user == null) return <Redirect to="/login" />;
                             else return <HomeScreen />;
+                        }}
+                    />
+                    <Route
+                        exact
+                        path="/schedule"
+                        render={({ location }) => {
+                            if (state.user == null) return <Redirect to="/login" />;
+                            else return <SchedulePage />;
                         }}
                     />
                 </Switch>
