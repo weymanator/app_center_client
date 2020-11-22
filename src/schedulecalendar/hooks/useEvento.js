@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 export default function useEvento() {
-    const [evento, setEvento] = useState("");
+  const [evento, setEvento] = useState('');
 
-    function handleChangeEvento({ target }) {
-        let text = target.value;
-        text = text.trim();
-        setEvento(text);
-    }
+  function handleChangeEvento({ target }) {
+    let text = target.value;
+    text = text.trim();
+    setEvento(text);
+  }
 
-    return [evento, handleChangeEvento];
+  return [evento, handleChangeEvento];
 }
