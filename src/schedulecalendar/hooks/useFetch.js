@@ -1,12 +1,42 @@
+import { useState, useEffect } from "react";
 
-import React, {useState} from 'react'
+export default function useFetch(userId, initdate, refresh, setRefresh) {
+    const [eventos, setEventos] = useState({
+        loading: true,
+        data: null,
+        error: null,
+    });
 
-export default function useFetch(userId, date) {
-    const [eventos, setEventos] = useState({loading: true, data: null})
+    const [dateToFetch, setDateToFetch] = useState(initdate);
 
-    function getData() {
-        console.log('se lanzo un fetch')
-    }
+    useEffect(() => {
+        function getData(date) {
+            const { day, month, year } = date;
+            const fecha = `${year}-${month}-${day}`;
 
-    return [eventos, getData];
+            fetch(`http://localhost:7000/api/eventos/?date=${fecha}`, {
+                headers: { Authorization: userId },
+            })
+                .then((res) => res.json())
+                .then((datares) => {
+                    if (datares.err) {
+                        setEventos({
+                            loading: false,
+                            data: null,
+                            error: [datares],
+                        });
+                    }
+                    setEventos({
+                        loading: false,
+                        data: datares,
+                        error: null,
+                    });
+                });
+        }
+        console.log('fetch data')
+        getData(dateToFetch);
+        setRefresh(false);
+    }, [dateToFetch, userId, refresh, setRefresh]);
+
+    return [eventos, setDateToFetch];
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 
 function getActual() {
     let date = new Date();
@@ -7,7 +7,7 @@ function getActual() {
     let month = date.getMonth();
     let year = date.getFullYear();
 
-    return `${year}-${month}-${day}` 
+    return {year, month, day};
 }
 
 export default function useDate() {
@@ -18,10 +18,8 @@ export default function useDate() {
         let month = e.getMonth();
         let year = e.getFullYear();
 
-        setDate(`${year}-${month}-${day}`);
+        setDate({year, month, day});
     }
-
-    getActual()
 
     return [date, handleChangeDate];
 }
