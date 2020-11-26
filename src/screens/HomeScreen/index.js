@@ -1,25 +1,53 @@
 import React from 'react';
-import { SessionContext } from '../../navigation';
+import SessionContext from '../../globals/SessionContext';
+import { useParams, Link } from 'react-router-dom';
+import TasksScreen from '../TasksScreen';
+
+const linkStyle = {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+    textDecoration: 'none',
+    marginLeft: 22,
+};
+
+const signoutStyle = {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+    textDecoration: 'none',
+    marginRight: 22,
+};
 
 export default function HomeScreen() {
     const context = React.useContext(SessionContext);
-
-    React.useEffect(() => {
-        debugger
-        fetch('http://localhost:7000/tasks', {
-            headers: { Authorization: context.user.id },
-        })
-        .catch(err => {
-            debugger
-        });
-    }, []);
+    const { page } = useParams();
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <div style={{ height: 80, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <a style={{ marginLeft: 22 }} href="#">Tareas</a>
-                <a style={{ marginRight: 22 }} onClick={() => context.signout()} href="#">Cerrar sesión</a>
+            <div
+                style={{
+                    height: 80,
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    backgroundColor: '#1976D2',
+                }}
+            >
+                <div>
+                    <Link style={linkStyle} to='/tasks'>Tareas</Link>
+                    <Link style={linkStyle} to='/ejemplo'>Ejemplo</Link>
+                </div>
+                <a style={signoutStyle} onClick={() => context.signout()} href="#">Cerrar sesión</a>
             </div>
+            {
+                page === 'tasks'
+                    ? <TasksScreen />
+                    : page === 'ejemplo'
+                    ? <h1>Ejemplo</h1>
+                    : <h1>Page not found</h1>
+            }
         </div>
     )
 }
