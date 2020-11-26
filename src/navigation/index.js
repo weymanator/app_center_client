@@ -100,14 +100,6 @@ export default function Navigation() {
                             else return <Redirect to="/tasks" />;
                         }}
                     />
-                    <Route
-                        exact
-                        path="/schedule"
-                        render={({ location }) => {
-                            if (state.user == null) return <Redirect to="/login" />;
-                            else return <SchedulePage />;
-                        }}
-                    />
                 </Switch>
             </Router>
         </SessionContext.Provider>

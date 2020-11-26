@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import Calendar from 'react-calendar';
 import useDetalles from './hooks/useDetalles';
 import useDate from './hooks/useDate';
-import { SessionContext } from '../navigation/index';
+import SessionContext from '../globals/SessionContext';
 import useFetch from './hooks/useFetch';
 import useEvento from './hooks/useEvento';
 import usePostData from './hooks/usePostData';
