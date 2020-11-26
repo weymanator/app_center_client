@@ -1,5 +1,5 @@
 import React from "react";
-import { SessionContext } from '../../navigation';
+import SessionContext from '../../globals/SessionContext';
 
 export default function LoginScreen() {
   const [username, setUsername] = React.useState("");

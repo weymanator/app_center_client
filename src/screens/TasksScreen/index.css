@@ -1,0 +1,14 @@
+li {
+    list-style-type: none;
+}
+
+#pending-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#pending-title button {
+    margin-left: 22px;
+    height: 20px;
+}

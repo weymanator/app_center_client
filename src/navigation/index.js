@@ -3,8 +3,7 @@ import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-d
 import SchedulePage from '../schedulecalendar/SchedulePage';
 import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
-
-export const SessionContext = React.createContext();
+import SessionContext from '../globals/SessionContext';
 
 export default function Navigation() {
     const [state, dispatch] = React.useReducer((prevState, action) => {
@@ -22,9 +21,25 @@ export default function Navigation() {
     window.dispatch = dispatch;
 
     React.useEffect(() => {
-        let user = localStorage.getItem('user');
-        if (user != null) user = JSON.parse(user);
-        dispatch({ type: 'SET_USER', user });
+        let token = localStorage.getItem('token');
+        if (token != null) {
+            fetch('http://localhost:7000/users/getinfo', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+                .then(data => data.json())
+                .then(data => {
+                    if (data.errmsg == null) {
+                        dispatch({ type: 'SET_USER', user: data });
+                    } else {
+                        localStorage.clear();
+                    }
+                })
+                .catch(err => {
+                    alert('algo salio mal');
+                });
+        }
     }, []);
 
     const context = React.useMemo(() => ({
@@ -45,7 +60,7 @@ export default function Navigation() {
                         return;
                     }
 
-                    localStorage.setItem('user', JSON.stringify(data));
+                    localStorage.setItem('token', data.token);
                     dispatch({ type: 'SIGN_IN', user: data });
                 })
                 .catch(err => {
@@ -67,7 +82,14 @@ export default function Navigation() {
                         path="/login"
                         render={({ location }) => {
                             if (state.user == null) return <LoginScreen />;
-                            else return <Redirect to="/" />;
+                            else return <Redirect to="/tasks" />;
+                        }}
+                    />
+                    <Route
+                        path="/:page"
+                        render={({ location }) => {
+                            if (state.user == null) return <Redirect to="/login" />;
+                            else return <HomeScreen />;
                         }}
                     />
                     <Route
@@ -75,7 +97,7 @@ export default function Navigation() {
                         path="/"
                         render={({ location }) => {
                             if (state.user == null) return <Redirect to="/login" />;
-                            else return <HomeScreen />;
+                            else return <Redirect to="/tasks" />;
                         }}
                     />
                     <Route
