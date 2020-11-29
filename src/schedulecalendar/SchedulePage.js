@@ -102,21 +102,25 @@ export default function SchedulePage() {
                                         <div
                                             className="titulo"
                                             style={{
-                                                height: 80,
+                                                height: 40,
                                                 width: "100%",
                                                 display: "flex",
                                                 alignItems: "center",
-                                                justifyContent: "space-evenly",
+                                                justifyContent: "space-between",
                                             }}
                                         >
-                                            <h3>Evento: </h3> {d.evento}
+                                            <h3>Evento: </h3> <h5>{d.evento}</h5>
                                             <button className="btn btn-primary">
                                                 Eliminar
                                             </button>
                                         </div>
-                                        <div className="cuerpo">
-                                            <h4>Detalles: </h4> {d.detalles}
-                                            <h4>Fecha: </h4> {d.fecha}
+                                        <div className="cuerpo"
+                                        style={{
+                                            borderBottom: "1px solid #e1e1e1"
+                                        }}
+                                        >
+                                            <h4>Detalles: </h4> <h5>{d.detalles}</h5>
+                                            <h4>Fecha: </h4> <h5>{d.fecha}</h5>
                                         </div>
                                         <hr />
                                     </li>
