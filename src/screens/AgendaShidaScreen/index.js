@@ -3,8 +3,8 @@ import React from 'react';
 import 'rmwc/dist/styles'
 import '@fortawesome/fontawesome-free/js/all.js';
 import Contact from './Contact';
-import {MDCTextField} from '@material/textfield';
 import {MDCDialog} from '@material/dialog';
+import {MDCTextField} from '@material/textfield';
 
 import SessionContext from '../../globals/SessionContext';
 
@@ -28,11 +28,14 @@ export default class AgendaShida extends React.Component {
       this.open_modal = this.open_modal.bind(this);
       this.clear_inputs = this.clear_inputs.bind(this);
       this.new_contact = this.new_contact.bind(this);
+      this.display_contact = this.display_contact.bind(this);
+      this.delete_contact = this.delete_contact.bind(this);
+      this.retrieve_contacts = this.retrieve_contacts.bind(this);
   }
   
   getAvailableID(data){
     if(data.length === 0) return 1;
-    return Math.max(...data.map(item => item.ID)) +1;
+    return Math.max(...data.map(item => item.id)) +1;
   }
 
   open_modal(){
@@ -42,6 +45,9 @@ export default class AgendaShida extends React.Component {
   clear_inputs(){
     this.txtName.value = "";
     this.txtTel.value = "";
+    this.txtName2.value = "";
+    this.txtTel2.value = "";
+    this.setState({current_id: -1});
   }
 
   new_contact(){
@@ -64,6 +70,60 @@ export default class AgendaShida extends React.Component {
       contactslist: [...this.state.contactslist, newcontact]
     })
     this.clear_inputs();
+  }
+
+  display_contact(contact){
+    const that = this;
+    //console.log(contact);
+    return function(){
+      let index = that.state.contactslist.findIndex(item => item.id === contact.id);
+      that.txtName2.value = that.state.contactslist[index].nombre;
+      that.txtTel2.value = that.state.contactslist[index].telefono;
+      that.setState({current_id: contact.id});
+      that.modal_two.open();
+    }
+  }
+
+  retrieve_contacts(){
+    fetch('http://localhost:7000/getcontactoshido', {
+        method: 'GET',
+        //headers: { Authorization: this.user.id }
+        headers: { Authorization: `Bearer ${this.token}` }
+    })
+    .then(data => data.json())
+    .then(data => {
+      if (data.errmsg != null) {
+        if (data.code === 0) {
+            this.context.signout();
+            return;
+        }
+        throw Error(data.errmsg);
+      }
+      this.setState({ contactslist: data });
+    })
+    .catch(err => {
+        alert("Algo salio mal");
+    })
+  }
+
+  delete_contact(){
+    const current = {
+      id: this.state.current_id
+    }
+    fetch('http://localhost:7000/delcontactoshido', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.token}`,
+        },
+        body: JSON.stringify(current),
+    })
+    //this.setState({contactslist: []});
+    //this.retrieve_contacts();
+    const index = this.state.contactslist.findIndex(item => item.id === current.id);
+    const clone = this.state.contactslist;
+    clone.splice(index,1);
+    this.setState({contactslist: clone});
   }
 
   render(){
@@ -90,9 +150,10 @@ export default class AgendaShida extends React.Component {
               )
             }
             {
-              this.state.contactslist.map(contact => ([
-                <Contact key={contact.id} contactName={contact.nombre} phoneNumber={contact.telefono}></Contact>
-              ]))
+              this.state.contactslist.map(contact => (
+                <Contact onClick={this.display_contact(contact)} key={contact.id} contactName={contact.nombre} phoneNumber={contact.telefono} email={contact.email}></Contact>
+              ))
+              
             }
           </ul>
           <button onClick={this.open_modal} className="mdc-fab btnplus" aria-label="plus">
@@ -142,36 +203,65 @@ export default class AgendaShida extends React.Component {
           </div>
           <div className="mdc-dialog__scrim"></div>
         </div>
+      {/* modal xd */}
+        <div className="mdc-dialog modal_two">
+          <div className="mdc-dialog__container">
+            <div className="mdc-dialog__surface"
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="my-dialog-title"
+              aria-describedby="my-dialog-content">
+              <h2 className="mdc-dialog__title" id="my-dialog-title">
+              Contacto
+              </h2>
+              <div className="mdc-dialog__content" id="my-dialog-content">
+                <label className="mdc-text-field mdc-text-field--filled input_name2">
+                  <span className="mdc-text-field__ripple"></span>
+                  <span className="mdc-floating-label" id="inputName" ref={this.inputName2}>Nombre</span>
+                  <input onChange={event => this.inputName2 = event.target.value} className="mdc-text-field__input" type="text" aria-labelledby="my-label-id"/>
+                  <span className="mdc-line-ripple"></span>
+                </label><br></br><br></br>
+                <label className="mdc-text-field mdc-text-field--filled input_tel2">
+                  <span className="mdc-text-field__ripple"></span>
+                  <span className="mdc-floating-label" id="inputTel" ref={this.inputTel2}>Telefono</span>
+                  <input onChange={event => this.inputTel2 = event.target.value} className="mdc-text-field__input" type="number" aria-labelledby="my-label-id"/>
+                  <span className="mdc-line-ripple"></span>
+                </label>
+              </div>
+              <div className="mdc-dialog__actions">
+              <button type="button" className="mdc-button mdc-dialog__button" data-mdc-dialog-action="accept">
+                  <div className="mdc-button__ripple"></div>
+                  <span className="mdc-button__label">Save</span>
+                </button>
+
+                <button onClick={this.delete_contact} type="button" className="mdc-button mdc-dialog__button" data-mdc-dialog-action="close">
+                  <div className="mdc-button__ripple"></div>
+                  <span className="mdc-button__label">Delete</span>
+                </button>
+
+                <button onClick={this.clear_inputs} type="button" className="mdc-button mdc-dialog__button" data-mdc-dialog-action="close">
+                  <div className="mdc-button__ripple"></div>
+                  <span className="mdc-button__label">Cancel</span>
+                </button>
+      
+              </div>
+            </div>
+          </div>
+          <div className="mdc-dialog__scrim"></div>
+        </div>
       </>
     )
   }
 
   componentDidMount(){
     this.modal_new = new MDCDialog(document.querySelector('.modal_new'));
+    this.modal_two = new MDCDialog(document.querySelector('.modal_two'));
     this.txtName = new MDCTextField(document.querySelector('.input_name'));
     this.txtTel = new MDCTextField(document.querySelector('.input_tel'));
+    this.txtName2 = new MDCTextField(document.querySelector('.input_name2'));
+    this.txtTel2 = new MDCTextField(document.querySelector('.input_tel2'));
 
-    // TODO hacer fetch al server para traer los contactos
-    
-    fetch('http://localhost:7000/getcontactoshido', {
-        method: 'GET',
-        //headers: { Authorization: this.user.id }
-        headers: { Authorization: `Bearer ${this.token}` }
-    })
-    .then(data => data.json())
-    .then(data => {
-      if (data.errmsg != null) {
-        if (data.code === 0) {
-            this.context.signout();
-            return;
-        }
-        throw Error(data.errmsg);
-      }
-      this.setState({ contactslist: data });
-    })
-    .catch(err => {
-        alert("Algo salio mal");
-    })
+    this.retrieve_contacts();
 
   }
 
