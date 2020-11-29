@@ -2,6 +2,7 @@ import React from 'react';
 import SessionContext from '../../globals/SessionContext';
 import { useParams, Link } from 'react-router-dom';
 import TasksScreen from '../TasksScreen';
+import AgendaShidaScreen from '../AgendaShidaScreen';
 
 const linkStyle = {
     color: 'white',
@@ -38,12 +39,15 @@ export default function HomeScreen() {
                 <div>
                     <Link style={linkStyle} to='/tasks'>Tareas</Link>
                     <Link style={linkStyle} to='/ejemplo'>Ejemplo</Link>
+                    <Link style={linkStyle} to='/agendashida'>Contactos</Link>
                 </div>
                 <a style={signoutStyle} onClick={() => context.signout()} href="#">Cerrar sesión</a>
             </div>
             {
                 page === 'tasks'
                     ? <TasksScreen />
+                    : page === 'agendashida'
+                    ? <AgendaShidaScreen />
                     : page === 'ejemplo'
                     ? <h1>Ejemplo</h1>
                     : <h1>Page not found</h1>

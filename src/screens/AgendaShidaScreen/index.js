@@ -15,7 +15,6 @@ export default class AgendaShida extends React.Component {
       super(props);
       this.state = {
         contactslist: []
-        // favcontacts: []
       }
       this.modal_new = undefined;
       this.txtName = undefined;
@@ -24,7 +23,7 @@ export default class AgendaShida extends React.Component {
       this.inputName = undefined;
       this.inputTel = undefined;
 
-      this.user = JSON.parse(localStorage.getItem('user'));
+      this.token = localStorage.getItem('token');
 
       this.open_modal = this.open_modal.bind(this);
       this.clear_inputs = this.clear_inputs.bind(this);
@@ -32,8 +31,8 @@ export default class AgendaShida extends React.Component {
   }
   
   getAvailableID(data){
-    /*if(data.length === 0) return 1;
-    return Math.max(...data.map(item => item.ID)) +1;*/
+    if(data.length === 0) return 1;
+    return Math.max(...data.map(item => item.ID)) +1;
   }
 
   open_modal(){
@@ -48,15 +47,23 @@ export default class AgendaShida extends React.Component {
   new_contact(){
     const newcontact = {
       id: this.getAvailableID(this.state.contactslist),
-      name: this.inputName,
-      phonenumber: this.inputTel
+      nombre: this.inputName,
+      telefono: this.inputTel,
+      email: 'test'
     }
+    fetch('http://localhost:7000/newcontactoshido', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.token}`,
+        },
+        body: JSON.stringify(newcontact),
+    })
+
     this.setState({
       contactslist: [...this.state.contactslist, newcontact]
     })
     this.clear_inputs();
-
-    // TODO hacer fetch al server
   }
 
   render(){
@@ -84,7 +91,7 @@ export default class AgendaShida extends React.Component {
             }
             {
               this.state.contactslist.map(contact => ([
-                <Contact key={contact.id} contactName={contact.name} phoneNumber={contact.phonenumber}></Contact>
+                <Contact key={contact.id} contactName={contact.nombre} phoneNumber={contact.telefono}></Contact>
               ]))
             }
           </ul>
@@ -110,13 +117,13 @@ export default class AgendaShida extends React.Component {
               <div className="mdc-dialog__content" id="my-dialog-content">
                 <label className="mdc-text-field mdc-text-field--filled input_name">
                   <span className="mdc-text-field__ripple"></span>
-                  <span className="mdc-floating-label" id="inputName" ref={this.inputName}>Nombre</span>
+                  <span className="mdc-floating-label" id="inputName">Nombre</span>
                   <input onChange={event => this.inputName = event.target.value} className="mdc-text-field__input" type="text" aria-labelledby="my-label-id"/>
                   <span className="mdc-line-ripple"></span>
                 </label><br></br><br></br>
                 <label className="mdc-text-field mdc-text-field--filled input_tel">
                   <span className="mdc-text-field__ripple"></span>
-                  <span className="mdc-floating-label" id="inputTel" ref={this.inputTel}>Telefono</span>
+                  <span className="mdc-floating-label" id="inputTel">Telefono</span>
                   <input onChange={event => this.inputTel = event.target.value} className="mdc-text-field__input" type="number" aria-labelledby="my-label-id"/>
                   <span className="mdc-line-ripple"></span>
                 </label>
@@ -148,16 +155,19 @@ export default class AgendaShida extends React.Component {
     
     fetch('http://localhost:7000/getcontactoshido', {
         method: 'GET',
-        headers: { Authorization: this.user.id }
+        //headers: { Authorization: this.user.id }
+        headers: { Authorization: `Bearer ${this.token}` }
     })
     .then(data => data.json())
     .then(data => {
       if (data.errmsg != null) {
-          alert(data.errmsg);
-          return;
+        if (data.code === 0) {
+            this.context.signout();
+            return;
+        }
+        throw Error(data.errmsg);
       }
       this.setState({ contactslist: data });
-      console.log(this.contactslist);
     })
     .catch(err => {
         alert("Algo salio mal");
