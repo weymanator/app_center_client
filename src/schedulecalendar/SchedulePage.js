@@ -47,7 +47,21 @@ export default function SchedulePage() {
         postData(body, date);
         setRefresch(true);
     };
-
+    function deleteData(body) {
+        fetch(`http://localhost:7000/api/eventoD/`, {
+            method: "DELETE",
+            headers: {
+                Authorization: body.userId,
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+        })
+            .then((resp) => resp.json())
+            .then((data) => {
+                console.log(data);
+            });
+    }
     return (
         <div className="container">
             {/* una barra de navegacion que permita volver */}
@@ -109,17 +123,21 @@ export default function SchedulePage() {
                                                 justifyContent: "space-between",
                                             }}
                                         >
-                                            <h3>Evento: </h3> <h5>{d.evento}</h5>
+                                            <h3>Evento: </h3>{" "}
+                                            <h5>{d.evento}</h5>
                                             <button className="btn btn-primary">
                                                 Eliminar
                                             </button>
                                         </div>
-                                        <div className="cuerpo"
-                                        style={{
-                                            borderBottom: "1px solid #e1e1e1"
-                                        }}
+                                        <div
+                                            className="cuerpo"
+                                            style={{
+                                                borderBottom:
+                                                    "1px solid #e1e1e1",
+                                            }}
                                         >
-                                            <h4>Detalles: </h4> <h5>{d.detalles}</h5>
+                                            <h4>Detalles: </h4>{" "}
+                                            <h5>{d.detalles}</h5>
                                             <h4>Fecha: </h4> <h5>{d.fecha}</h5>
                                         </div>
                                         <hr />
