@@ -15,6 +15,7 @@ export default function SchedulePage() {
     const sessionContext = useContext(SessionContext);
     const { id } = sessionContext.user;
 
+    const token = localStorage.getItem("token");
     // hooks
     const [refresch, setRefresch] = useState(false);
 
@@ -22,8 +23,14 @@ export default function SchedulePage() {
     const [evento, handleChangeEvento] = useEvento();
     const [detalles, handleChangeDetalles] = useDetalles();
     const [date, handleChangeDate] = useDate();
-    const [eventos, setDateToFetch] = useFetch(id, date, refresch, setRefresch);
-    const [postData] = usePostData();
+    const [eventos, setDateToFetch] = useFetch(
+        id,
+        date,
+        refresch,
+        setRefresch,
+        token
+    );
+    const [postData] = usePostData(token);
 
     // object destructuring
     const { day, month, year } = date;
@@ -47,19 +54,19 @@ export default function SchedulePage() {
         postData(body, date);
         setRefresch(true);
     };
-    function deleteData(body) {
+    function deleteData(id) {
         fetch(`http://localhost:7000/api/eventoD/`, {
             method: "DELETE",
             headers: {
-                Authorization: body.userId,
-                Accept: "application/json",
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify(body),
+            body: JSON.stringify({id: id}),
         })
             .then((resp) => resp.json())
             .then((data) => {
                 console.log(data);
+                setRefresch(true);
             });
     }
     return (
@@ -111,38 +118,39 @@ export default function SchedulePage() {
                     <ul>
                         {!!data &&
                             data.map((d) => (
-                                <section>
-                                    <li key={d.id}>
-                                        <div
-                                            className="titulo"
-                                            style={{
-                                                height: 40,
-                                                width: "100%",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "space-between",
+                                <li key={d.id}>
+                                    <div
+                                        className="titulo"
+                                        style={{
+                                            height: 40,
+                                            width: "100%",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "space-between",
+                                        }}
+                                    >
+                                        <h3>Evento: </h3> <h5>{d.evento}</h5>
+                                        <button
+                                            className="btn btn-primary"
+                                            onClick={() => {
+                                                deleteData(d.id);
                                             }}
                                         >
-                                            <h3>Evento: </h3>{" "}
-                                            <h5>{d.evento}</h5>
-                                            <button className="btn btn-primary">
-                                                Eliminar
-                                            </button>
-                                        </div>
-                                        <div
-                                            className="cuerpo"
-                                            style={{
-                                                borderBottom:
-                                                    "1px solid #e1e1e1",
-                                            }}
-                                        >
-                                            <h4>Detalles: </h4>{" "}
-                                            <h5>{d.detalles}</h5>
-                                            <h4>Fecha: </h4> <h5>{d.fecha}</h5>
-                                        </div>
-                                        <hr />
-                                    </li>
-                                </section>
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                    <div
+                                        className="cuerpo"
+                                        style={{
+                                            borderBottom: "1px solid #e1e1e1",
+                                        }}
+                                    >
+                                        <h4>Detalles: </h4>{" "}
+                                        <h5>{d.detalles}</h5>
+                                        <h4>Fecha: </h4> <h5>{d.fecha}</h5>
+                                    </div>
+                                    <hr />
+                                </li>
                             ))}
                     </ul>
                 }
