@@ -1,6 +1,6 @@
 # Getting Started
 
-Downlod or clone this repo, then type in your terminal
+Download or clone this repo, then type in your terminal.
 
 ```bash
 npm install
