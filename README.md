@@ -5,7 +5,7 @@ Download or clone this repo, then type in your terminal.
 ```bash
 npm install
 
-# or if are usign yarn
+# or if are usign yarn.
 
 yarn
 ```
